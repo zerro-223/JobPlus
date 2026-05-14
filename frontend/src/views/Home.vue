@@ -64,6 +64,7 @@
 </div>
 </template>
 <script>
+import Vue from 'vue';
 export default {
   data() {
     return { keyword: '', city: '', categories: [], positions: [], companies: [] };
@@ -85,7 +86,7 @@ export default {
     logout() {
       this.$api.post('/user/logout').finally(() => {
         sessionStorage.removeItem('jobplus_user');
-        delete this.$user;
+        Vue.prototype.$user = null;
         this.$router.push('/');
       });
     }
