@@ -10,14 +10,18 @@ Vue.use(ElementUI, { locale: zhLocale });
 Vue.prototype.$api = api;
 Vue.config.productionTip = false;
 
-// Check login state from sessionStorage
+// 使用 Vue.observable 做全局登录状态（响应式）
+const globalState = Vue.observable({ user: null });
+Vue.prototype.$global = globalState;
+
+// 从 sessionStorage 恢复登录态
 const savedUser = sessionStorage.getItem('jobplus_user');
 if (savedUser) {
-  try { Vue.prototype.$user = JSON.parse(savedUser); } catch(e) {}
+  try { globalState.user = JSON.parse(savedUser); } catch(e) {}
 }
 
 router.beforeEach((to, from, next) => {
-  const user = Vue.prototype.$user;
+  const user = globalState.user;
   if (to.meta.requiresAuth && !user) {
     return next('/login');
   }
@@ -26,5 +30,13 @@ router.beforeEach((to, from, next) => {
   }
   next();
 });
+
+// 避免路由重复导航报错
+const originalPush = router.push;
+router.push = function push(location) {
+  return originalPush.call(this, location).catch(err => {
+    if (err.name !== 'NavigationDuplicated') throw err;
+  });
+};
 
 new Vue({ router, render: h => h(App) }).$mount('#app');

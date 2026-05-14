@@ -4,16 +4,16 @@
     <el-menu-item index="/" style="font-size:20px;font-weight:bold;">JobPlus</el-menu-item>
     <el-menu-item index="/jobs">职位搜索</el-menu-item>
     <div style="flex:1"></div>
-    <template v-if="user">
+    <template v-if="$global.user">
       <el-menu-item index="/deliveries">投递记录</el-menu-item>
       <el-menu-item index="/favorites">收藏夹</el-menu-item>
       <el-submenu index="user" style="float:right">
-        <template slot="title">{{ user.nickname || user.email }}</template>
+        <template slot="title">{{ $global.user.nickname || $global.user.email }}</template>
         <el-menu-item index="/profile">个人中心</el-menu-item>
         <el-menu-item index="/resume">我的简历</el-menu-item>
         <el-menu-item index="/notifications">消息通知</el-menu-item>
-        <el-menu-item v-if="user.role===2" index="/employer">企业后台</el-menu-item>
-        <el-menu-item v-if="user.role===3" index="/admin">管理后台</el-menu-item>
+        <el-menu-item v-if="$global.user.role===2" index="/employer">企业后台</el-menu-item>
+        <el-menu-item v-if="$global.user.role===3" index="/admin">管理后台</el-menu-item>
         <el-menu-item @click="logout">退出登录</el-menu-item>
       </el-submenu>
     </template>
@@ -64,19 +64,13 @@
 </div>
 </template>
 <script>
-import Vue from 'vue';
 export default {
   data() {
     return { keyword: '', city: '', categories: [], positions: [], companies: [] };
   },
-  computed: {
-    user() { return this.$user; }
-  },
   mounted() {
     this.$api.get('/positions/categories').then(r => this.categories = (r.data||[]).filter(c => !c.parentId));
     this.$api.get('/positions', { params: { page:1, size:6 } }).then(r => { if(r.data) this.positions = r.data.list; });
-    // Fetch companies
-    this.$api.get('/company/1').catch(()=>{});
     this.companies = [{id:1,name:'阿里云',industry:'互联网/IT',scale:'1000人以上'},{id:2,name:'华为',industry:'通信/IT',scale:'1000人以上'},{id:3,name:'字节跳动',industry:'互联网',scale:'1000人以上'}];
   },
   methods: {
@@ -86,7 +80,7 @@ export default {
     logout() {
       this.$api.post('/user/logout').finally(() => {
         sessionStorage.removeItem('jobplus_user');
-        Vue.prototype.$user = null;
+        this.$global.user = null;
         this.$router.push('/');
       });
     }

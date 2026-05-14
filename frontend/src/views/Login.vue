@@ -12,7 +12,6 @@
 </div>
 </template>
 <script>
-import Vue from 'vue';
 export default {
   data() {
     return { form: { email: '', password: '' }, rules: { email: [{required:true,message:'请输入邮箱'}], password: [{required:true,message:'请输入密码'}] }, loading: false };
@@ -24,7 +23,7 @@ export default {
         this.loading = true;
         this.$api.post('/user/login', this.form).then(res => {
           const user = res.data;
-          Vue.prototype.$user = user;
+          this.$global.user = user;                // 响应式全局状态
           sessionStorage.setItem('jobplus_user', JSON.stringify(user));
           this.$message.success('登录成功');
           this.$router.push('/');
