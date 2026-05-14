@@ -42,8 +42,13 @@
     <mvc:interceptors>
         <mvc:interceptor>
             <mvc:mapping path="/api/v1/**"/>
+            <!-- 公开接口（无需登录） -->
             <mvc:exclude-mapping path="/api/v1/user/register"/>
             <mvc:exclude-mapping path="/api/v1/user/login"/>
+            <mvc:exclude-mapping path="/api/v1/positions/**"/>
+            <mvc:exclude-mapping path="/api/v1/positions"/>
+            <mvc:exclude-mapping path="/api/v1/company/*"/>
+            <mvc:exclude-mapping path="/api/v1/company/*/positions"/>
             <bean class="com.jobplus.common.interceptor.AuthInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>
