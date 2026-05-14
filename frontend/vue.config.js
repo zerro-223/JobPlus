@@ -5,10 +5,13 @@ module.exports = {
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
-        pathRewrite: { '^/api': '/JobPlus/api' }
+        pathRewrite: { '^/api': '/JobPlus/api' },
+        // Tomcat returns JSESSIONID with path=/JobPlus but browser
+        // is on localhost:8081 — rewrite the cookie path to /
+        cookiePathRewrite: { '/JobPlus': '/' }
       }
     }
   },
   outputDir: '../src/main/webapp',
-  publicPath: '/JobPlus/'
+  publicPath: process.env.NODE_ENV === 'production' ? '/JobPlus/' : '/'
 };
