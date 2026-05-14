@@ -1,5 +1,6 @@
 package com.jobplus.controller;
 
+import com.jobplus.common.annotation.RequireRole;
 import com.jobplus.common.dto.*;
 import com.jobplus.entity.*;
 import com.jobplus.service.NotificationService;
@@ -14,12 +15,14 @@ import java.util.List;
 public class NotificationController {
     @Autowired private NotificationService notificationService;
 
+    @RequireRole(0)
     @GetMapping
     public Result<List<Notification>> list(HttpSession session) {
         User u = (User) session.getAttribute("user");
         return Result.success(notificationService.getNotifications(u.getId()));
     }
 
+    @RequireRole(0)
     @PutMapping("/{id}/read")
     public Result<Void> markRead(@PathVariable Integer id, HttpSession session) {
         User u = (User) session.getAttribute("user");
@@ -27,6 +30,7 @@ public class NotificationController {
         return Result.success();
     }
 
+    @RequireRole(0)
     @PutMapping("/read-all")
     public Result<Void> markAllRead(HttpSession session) {
         User u = (User) session.getAttribute("user");
@@ -34,6 +38,7 @@ public class NotificationController {
         return Result.success();
     }
 
+    @RequireRole(0)
     @GetMapping("/unread-count")
     public Result<Integer> unreadCount(HttpSession session) {
         User u = (User) session.getAttribute("user");

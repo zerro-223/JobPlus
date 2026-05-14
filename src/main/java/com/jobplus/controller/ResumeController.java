@@ -9,12 +9,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import com.jobplus.common.annotation.RequireRole;
 
 @RestController
 @RequestMapping("/api/v1/resume")
 public class ResumeController {
     @Autowired private ResumeService resumeService;
 
+    @RequireRole(0)
     @GetMapping
     public Result<ResumeVO> getResume(HttpSession session) {
         User u = (User) session.getAttribute("user");
@@ -28,6 +30,7 @@ public class ResumeController {
         return Result.success();
     }
 
+    @RequireRole(0)
     @PostMapping("/attachment")
     public Result<String> uploadAttachment(@RequestParam("file") MultipartFile file, HttpSession session) {
         User u = (User) session.getAttribute("user");

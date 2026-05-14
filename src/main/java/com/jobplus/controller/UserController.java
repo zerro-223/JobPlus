@@ -27,6 +27,7 @@ public class UserController {
         return Result.success(vo);
     }
 
+    @RequireRole(0)
     @GetMapping("/profile")
     public Result<UserVO> profile(HttpSession session) {
         User u = (User) session.getAttribute("user");
@@ -34,6 +35,7 @@ public class UserController {
         return Result.success(new UserVO(user));
     }
 
+    @RequireRole(0)
     @PutMapping("/profile")
     public Result<Void> updateProfile(@RequestBody User user, HttpSession session) {
         User u = (User) session.getAttribute("user");
@@ -42,6 +44,7 @@ public class UserController {
         return Result.success();
     }
 
+    @RequireRole(0)
     @PutMapping("/password")
     public Result<Void> updatePassword(@RequestParam String oldPwd, @RequestParam String newPwd, HttpSession session) {
         User u = (User) session.getAttribute("user");
@@ -49,6 +52,7 @@ public class UserController {
         return Result.success();
     }
 
+    @RequireRole(0)
     @PostMapping("/logout")
     public Result<Void> logout(HttpSession session) {
         session.invalidate();

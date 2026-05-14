@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import com.jobplus.common.annotation.RequireRole;
 
 @RestController
 @RequestMapping("/api/v1/favorites")
 public class FavoriteController {
     @Autowired private FavoriteService favoriteService;
 
+    @RequireRole(1)
     @PostMapping
     public Result<Void> add(@RequestParam Integer positionId, HttpSession session) {
         User u = (User) session.getAttribute("user");
@@ -21,6 +23,7 @@ public class FavoriteController {
         return Result.success();
     }
 
+    @RequireRole(1)
     @DeleteMapping("/{positionId}")
     public Result<Void> remove(@PathVariable Integer positionId, HttpSession session) {
         User u = (User) session.getAttribute("user");
@@ -28,6 +31,7 @@ public class FavoriteController {
         return Result.success();
     }
 
+    @RequireRole(1)
     @GetMapping
     public Result<List<PositionVO>> myFavorites(HttpSession session) {
         User u = (User) session.getAttribute("user");

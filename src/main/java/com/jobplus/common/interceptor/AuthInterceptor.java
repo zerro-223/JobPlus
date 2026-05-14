@@ -13,7 +13,8 @@ import javax.servlet.http.HttpSession;
 import java.lang.reflect.Method;
 
 /**
- * 登录认证 & 角色权限拦截器
+ * 角色权限拦截器 — 仅拦截标注了 @RequireRole 的方法
+ * 未标注的方法不需要登录即可访问（Controller 内部自行处理 auth）
  */
 public class AuthInterceptor implements HandlerInterceptor {
 
@@ -22,15 +23,23 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
                              Object handler) throws Exception {
-        // 仅拦截 Controller 方法
         if (!(handler instanceof HandlerMethod)) {
             return true;
         }
 
-        HttpSession session = request.getSession();
-        User user = (User) session.getAttribute("user");
+        HandlerMethod handlerMethod = (HandlerMethod) handler;
+        Method method = handlerMethod.getMethod();
+        RequireRole requireRole = method.getAnnotation(RequireRole.class);
 
-        // ① 登录校验：所有 /api/v1/** 请求都需要登录
+        // 没有 @RequireRole 注解的方法，放行（不要求登录）
+        if (requireRole == null) {
+            return true;
+        }
+
+        HttpSession session = request.getSession(false);
+        User user = (session != null) ? (User) session.getAttribute("user") : null;
+
+        // 需要特定角色但未登录
         if (user == null) {
             response.setContentType("application/json;charset=UTF-8");
             response.setStatus(401);
@@ -39,20 +48,19 @@ public class AuthInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        // ② 角色校验
-        HandlerMethod handlerMethod = (HandlerMethod) handler;
-        Method method = handlerMethod.getMethod();
-        RequireRole requireRole = method.getAnnotation(RequireRole.class);
-        if (requireRole != null) {
-            int requiredRole = requireRole.value();
-            if (user.getRole() != requiredRole && user.getRole() != 3) {
-                // 非指定角色且非管理员 → 403
-                response.setContentType("application/json;charset=UTF-8");
-                response.setStatus(403);
-                response.getWriter().write(
-                    objectMapper.writeValueAsString(Result.error(403, "权限不足")));
-                return false;
-            }
+        // 角色校验
+        int requiredRole = requireRole.value();
+        // @RequireRole(0) 表示任意已登录用户均可访问
+        if (requiredRole == 0) {
+            return true;
+        }
+        // 管理员(role=3)可以访问所有带角色限制的接口
+        if (user.getRole() != requiredRole && user.getRole() != 3) {
+            response.setContentType("application/json;charset=UTF-8");
+            response.setStatus(403);
+            response.getWriter().write(
+                objectMapper.writeValueAsString(Result.error(403, "权限不足")));
+            return false;
         }
 
         return true;

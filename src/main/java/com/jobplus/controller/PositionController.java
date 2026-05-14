@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import com.jobplus.common.annotation.RequireRole;
 
 @RestController
 @RequestMapping("/api/v1/positions")
@@ -44,6 +45,7 @@ public class PositionController {
         return Result.success(vo);
     }
 
+    @RequireRole(2)
     @PostMapping
     public Result<PositionVO> create(@RequestBody PositionCreateReq req, HttpSession session) {
         User user = (User) session.getAttribute("user");
@@ -52,6 +54,7 @@ public class PositionController {
         return Result.success(vo);
     }
 
+    @RequireRole(2)
     @PutMapping("/{id}")
     public Result<Void> update(@PathVariable Integer id, @RequestBody PositionUpdateReq req, HttpSession session) {
         User user = (User) session.getAttribute("user");
@@ -60,6 +63,7 @@ public class PositionController {
         return Result.success();
     }
 
+    @RequireRole(2)
     @PutMapping("/{id}/status")
     public Result<Void> updateStatus(@PathVariable Integer id, @RequestParam Integer status, HttpSession session) {
         User user = (User) session.getAttribute("user");
