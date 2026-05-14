@@ -10,12 +10,12 @@ public interface WorkExperienceMapper {
     @Select("SELECT * FROM work_experience WHERE resume_id = #{resumeId} ORDER BY sort_order")
     List<WorkExperience> findByResumeId(@Param("resumeId") Integer resumeId);
 
-    @Insert("INSERT INTO work_experience (resume_id, company, position, start_date, end_date, description, sort_order) " +
+    @Insert("INSERT INTO work_experience (resume_id, company, `position`, start_date, end_date, description, sort_order) " +
             "VALUES (#{resumeId}, #{company}, #{position}, #{startDate}, #{endDate}, #{description}, #{sortOrder})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(WorkExperience exp);
 
-    @Update("UPDATE work_experience SET company=#{company}, position=#{position}, " +
+    @Update("UPDATE work_experience SET company=#{company}, `position`=#{position}, " +
             "start_date=#{startDate}, end_date=#{endDate}, description=#{description}, sort_order=#{sortOrder} WHERE id=#{id}")
     int update(WorkExperience exp);
 
