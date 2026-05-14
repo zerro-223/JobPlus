@@ -25,18 +25,18 @@
     </resultMap>
 
     <select id="findById" resultMap="positionMap">
-        SELECT * FROM position WHERE id = #{id}
+        SELECT * FROM `position` WHERE id = #{id}
     </select>
 
     <insert id="insert" parameterType="com.jobplus.entity.Position" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO position (company_id, category_id, title, description, requirement,
+        INSERT INTO `position` (company_id, category_id, title, description, requirement,
             salary_min, salary_max, education, experience, workplace, tags, status, expire_at)
         VALUES (#{companyId}, #{categoryId}, #{title}, #{description}, #{requirement},
             #{salaryMin}, #{salaryMax}, #{education}, #{experience}, #{workplace}, #{tags}, #{status}, #{expireAt})
     </insert>
 
     <update id="update" parameterType="com.jobplus.entity.Position">
-        UPDATE position SET title=#{title}, description=#{description}, requirement=#{requirement},
+        UPDATE `position` SET title=#{title}, description=#{description}, requirement=#{requirement},
             category_id=#{categoryId}, salary_min=#{salaryMin}, salary_max=#{salaryMax},
             education=#{education}, experience=#{experience}, workplace=#{workplace},
             tags=#{tags}, status=0
@@ -44,15 +44,15 @@
     </update>
 
     <update id="updateStatus">
-        UPDATE position SET status=#{status} WHERE id=#{id}
+        UPDATE `position` SET status=#{status} WHERE id=#{id}
     </update>
 
     <update id="incrementViewCount">
-        UPDATE position SET view_count = view_count + 1 WHERE id=#{id}
+        UPDATE `position` SET view_count = view_count + 1 WHERE id=#{id}
     </update>
 
     <update id="incrementDeliveryCount">
-        UPDATE position SET delivery_count = delivery_count + 1 WHERE id=#{id}
+        UPDATE `position` SET delivery_count = delivery_count + 1 WHERE id=#{id}
     </update>
 
     <select id="search" resultMap="positionMap">
@@ -86,7 +86,7 @@
     </select>
 
     <select id="count" resultType="long">
-        SELECT COUNT(*) FROM position
+        SELECT COUNT(*) FROM `position`
         <where>
             <if test="keyword != null and keyword != ''">
                 AND (title LIKE CONCAT('%', #{keyword}, '%')
@@ -114,6 +114,6 @@
     </select>
 
     <select id="findByCompanyId" resultMap="positionMap">
-        SELECT * FROM position WHERE company_id = #{companyId} ORDER BY created_at DESC
+        SELECT * FROM `position` WHERE company_id = #{companyId} ORDER BY created_at DESC
     </select>
 </mapper>

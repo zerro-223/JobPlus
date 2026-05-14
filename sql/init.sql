@@ -1,7 +1,6 @@
 -- ============================================================
 -- JobPlus 综合性在线招聘平台 - 数据库初始化脚本
 -- 数据库版本：MySQL 8.0
--- 字符集：utf8mb4
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS jobplus_db
@@ -9,6 +8,9 @@ CREATE DATABASE IF NOT EXISTS jobplus_db
     DEFAULT COLLATE utf8mb4_unicode_ci;
 
 USE jobplus_db;
+
+-- 先禁用外键检查，确保可以顺序 DROP TABLE
+SET FOREIGN_KEY_CHECKS = 0;
 
 -- ============================================================
 -- 1. 用户表 (user)
@@ -89,10 +91,10 @@ CREATE TABLE job_category (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='职位分类表';
 
 -- ============================================================
--- 5. 职位信息表 (position)
+-- 5. 职位信息表 (position) — position 是MySQL保留关键字，需加反引号
 -- ============================================================
-DROP TABLE IF EXISTS position;
-CREATE TABLE position (
+DROP TABLE IF EXISTS `position`;
+CREATE TABLE `position` (
     id              INT AUTO_INCREMENT PRIMARY KEY,
     company_id      INT NOT NULL                   COMMENT '所属企业',
     category_id     INT                            COMMENT '职位分类',
@@ -174,7 +176,7 @@ CREATE TABLE work_experience (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     resume_id   INT NOT NULL                      COMMENT '关联 resume.id',
     company     VARCHAR(100) NOT NULL             COMMENT '公司名称',
-    position    VARCHAR(100) NOT NULL             COMMENT '职位',
+    position    VARCHAR(100) NOT NULL             COMMENT '职位名称(非关键字)',
     start_date  VARCHAR(7)                        COMMENT '开始 YYYY-MM',
     end_date    VARCHAR(7)                        COMMENT '结束 YYYY-MM',
     description TEXT                              COMMENT '工作描述',
@@ -216,7 +218,7 @@ CREATE TABLE delivery (
     created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(id),
-    FOREIGN KEY (position_id) REFERENCES position(id),
+    FOREIGN KEY (position_id) REFERENCES `position`(id),
     FOREIGN KEY (resume_id) REFERENCES resume(id),
     UNIQUE KEY uk_user_position (user_id, position_id),
     INDEX idx_user (user_id),
@@ -234,7 +236,7 @@ CREATE TABLE favorite (
     position_id INT NOT NULL                      COMMENT '职位ID',
     created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(id),
-    FOREIGN KEY (position_id) REFERENCES position(id),
+    FOREIGN KEY (position_id) REFERENCES `position`(id),
     UNIQUE KEY uk_user_position (user_id, position_id),
     INDEX idx_user (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收藏记录表';
@@ -301,3 +303,6 @@ CREATE TABLE admin_action_log (
     INDEX idx_admin (admin_id),
     INDEX idx_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='管理员操作日志表';
+
+-- 恢复外键检查
+SET FOREIGN_KEY_CHECKS = 1;

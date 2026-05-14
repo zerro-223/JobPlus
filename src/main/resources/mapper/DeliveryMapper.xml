@@ -42,7 +42,7 @@
 
     <select id="findByCompanyId" resultMap="deliveryMap">
         SELECT d.* FROM delivery d
-        JOIN position p ON d.position_id = p.id
+        JOIN `position` p ON d.position_id = p.id
         WHERE p.company_id = #{companyId}
         ORDER BY d.created_at DESC
     </select>
