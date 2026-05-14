@@ -3,14 +3,13 @@
 -- 数据库版本：MySQL 8.0
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS jobplus_db
+-- 先删除整个数据库，清理所有旧表和旧外键约束
+DROP DATABASE IF EXISTS jobplus_db;
+CREATE DATABASE jobplus_db
     DEFAULT CHARACTER SET utf8mb4
     DEFAULT COLLATE utf8mb4_unicode_ci;
 
 USE jobplus_db;
-
--- 先禁用外键检查，确保可以顺序 DROP TABLE
-SET FOREIGN_KEY_CHECKS = 0;
 
 -- ============================================================
 -- 1. 用户表 (user)
@@ -91,7 +90,7 @@ CREATE TABLE job_category (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='职位分类表';
 
 -- ============================================================
--- 5. 职位信息表 (position) — position 是MySQL保留关键字，需加反引号
+-- 5. 职位信息表 (position) — position是保留关键字，加反引号
 -- ============================================================
 DROP TABLE IF EXISTS `position`;
 CREATE TABLE `position` (
@@ -303,6 +302,3 @@ CREATE TABLE admin_action_log (
     INDEX idx_admin (admin_id),
     INDEX idx_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='管理员操作日志表';
-
--- 恢复外键检查
-SET FOREIGN_KEY_CHECKS = 1;
