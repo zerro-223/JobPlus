@@ -1,15 +1,11 @@
 package com.jobplus.service.impl;
 
-import com.jobplus.common.dto.PositionCreateReq;
-import com.jobplus.common.dto.PositionQuery;
-import com.jobplus.common.dto.PositionUpdateReq;
+import com.jobplus.common.dto.*;
 import com.jobplus.common.exception.BusinessException;
-import com.jobplus.common.vo.PageResult;
-import com.jobplus.common.vo.PositionVO;
 import com.jobplus.entity.*;
 import com.jobplus.mapper.*;
+import com.jobplus.service.NotificationService;
 import com.jobplus.service.PositionService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,201 +13,156 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
-/**
- * 职位服务实现
- */
 @Service
 @Transactional
 public class PositionServiceImpl implements PositionService {
 
-    @Autowired
-    private PositionMapper positionMapper;
+    @Autowired private PositionMapper positionMapper;
+    @Autowired private CompanyMapper companyMapper;
+    @Autowired private FavoriteMapper favoriteMapper;
+    @Autowired private AdminActionLogMapper adminActionLogMapper;
+    @Autowired private NotificationService notificationService;
 
-    @Autowired
-    private CompanyMapper companyMapper;
-
-    @Autowired
-    private FavoriteMapper favoriteMapper;
-
-    @Autowired
-    private NotificationMapper notificationMapper;
-
-    @Autowired
-    private AdminActionLogMapper adminActionLogMapper;
-
-    /**
-     * 分页搜索职位
-     */
     @Override
     public PageResult<PositionVO> search(PositionQuery query) {
         List<Position> positions = positionMapper.search(query);
         long total = positionMapper.count(query);
-
-        List<PositionVO> voList = positions.stream()
-                .map(this::toVO)
-                .collect(Collectors.toList());
-
-        int page = query.getPage() != null ? query.getPage() : 1;
-        int size = query.getSize() != null ? query.getSize() : 10;
-
-        return new PageResult<>(total, page, size, voList);
+        List<PositionVO> voList = new ArrayList<>();
+        for (Position p : positions) {
+            voList.add(toVO(p));
+        }
+        int page = query.getPage();
+        int size = query.getSize();
+        return new PageResult<>(voList, page, size, total);
     }
 
-    /**
-     * 获取职位详情，自动增加浏览计数
-     */
     @Override
     public PositionVO getDetail(Integer id, Integer userId) {
         Position position = positionMapper.findById(id);
-        if (position == null) {
-            throw new BusinessException(404, "职位不存在");
-        }
-
-        // 增加浏览计数
+        if (position == null) throw new BusinessException(404, "职位不存在");
         positionMapper.incrementViewCount(id);
-
         PositionVO vo = toVO(position);
-
-        // 如果用户已登录，检查是否收藏
         if (userId != null) {
-            boolean favorited = favoriteMapper.exists(userId, id);
-            vo.setIsFavorited(favorited);
+            vo.setIsFavorited(favoriteMapper.exists(userId, id));
         }
-
         return vo;
     }
 
-    /**
-     * 创建职位（企业用户）
-     */
     @Override
     public PositionVO create(PositionCreateReq req, User user) {
-        // 校验企业身份
         Company company = companyMapper.findByUserId(user.getId());
-        if (company == null) {
-            throw new BusinessException(400, "请先创建企业信息");
-        }
-        if (company.getStatus() != 1) {
-            throw new BusinessException(400, "企业信息未通过审核，无法发布职位");
-        }
+        if (company == null) throw new BusinessException(400, "请先创建企业信息");
+        if (company.getStatus() != 1) throw new BusinessException(400, "企业未认证，无法发布职位");
 
         Position position = new Position();
-        BeanUtils.copyProperties(req, position);
         position.setCompanyId(company.getId());
-        position.setStatus(0); // 待审核
+        position.setCategoryId(req.getCategoryId());
+        position.setTitle(req.getTitle());
+        position.setDescription(req.getDescription());
+        position.setRequirement(req.getRequirement());
+        position.setSalaryMin(req.getSalaryMin());
+        position.setSalaryMax(req.getSalaryMax());
+        position.setEducation(req.getEducation());
+        position.setExperience(req.getExperience());
+        position.setWorkplace(req.getWorkplace());
+        position.setTags(req.getTags());
+        position.setStatus(0);
         position.setViewCount(0);
         position.setDeliveryCount(0);
-        position.setCreatedAt(new Date());
-        position.setUpdatedAt(new Date());
-
         positionMapper.insert(position);
-
         return toVO(position);
     }
 
-    /**
-     * 更新职位
-     */
     @Override
     public void update(PositionUpdateReq req, User user) {
         Position position = positionMapper.findById(req.getId());
-        if (position == null) {
-            throw new BusinessException(404, "职位不存在");
-        }
-
-        // 校验归属权
+        if (position == null) throw new BusinessException(404, "职位不存在");
         Company company = companyMapper.findByUserId(user.getId());
-        if (company == null || !company.getId().equals(position.getCompanyId())) {
-            throw new BusinessException(403, "无权修改该职位");
-        }
+        if (company == null || !company.getId().equals(position.getCompanyId()))
+            throw new BusinessException(403, "无权修改");
 
-        BeanUtils.copyProperties(req, position, "id", "companyId", "status", "viewCount", "deliveryCount");
-        position.setStatus(0); // 回退到待审核
-        position.setUpdatedAt(new Date());
-
+        position.setTitle(req.getTitle());
+        position.setDescription(req.getDescription());
+        position.setRequirement(req.getRequirement());
+        position.setCategoryId(req.getCategoryId());
+        position.setSalaryMin(req.getSalaryMin());
+        position.setSalaryMax(req.getSalaryMax());
+        position.setEducation(req.getEducation());
+        position.setExperience(req.getExperience());
+        position.setWorkplace(req.getWorkplace());
+        position.setTags(req.getTags());
+        position.setStatus(0);
         positionMapper.update(position);
     }
 
-    /**
-     * 更新职位状态
-     */
     @Override
-    public void updateStatus(Integer id, Integer status) {
+    public void updateStatus(Integer id, Integer status, User user) {
         Position position = positionMapper.findById(id);
-        if (position == null) {
-            throw new BusinessException(404, "职位不存在");
-        }
+        if (position == null) throw new BusinessException(404, "职位不存在");
+        Company company = companyMapper.findByUserId(user.getId());
+        if (company == null || !company.getId().equals(position.getCompanyId()))
+            throw new BusinessException(403, "无权操作");
         positionMapper.updateStatus(id, status);
     }
 
-    /**
-     * 审核职位
-     */
     @Override
     public void audit(Integer id, Integer adminId, boolean approved, String reason) {
         Position position = positionMapper.findById(id);
-        if (position == null) {
-            throw new BusinessException(404, "职位不存在");
-        }
-        if (position.getStatus() != 0) {
-            throw new BusinessException(400, "该职位不是待审核状态");
-        }
-
-        int newStatus = approved ? 1 : 2; // 1=通过, 2=驳回
+        if (position == null) throw new BusinessException(404, "职位不存在");
+        int newStatus = approved ? 1 : 3;
         positionMapper.updateStatus(id, newStatus);
 
-        // 记录操作日志
         AdminActionLog log = new AdminActionLog();
         log.setAdminId(adminId);
-        log.setAction(approved ? "APPROVE_POSITION" : "REJECT_POSITION");
-        log.setTargetType("POSITION");
+        log.setActionType(approved ? "AUDIT_POSITION_APPROVE" : "AUDIT_POSITION_REJECT");
         log.setTargetId(id);
+        log.setTargetType("position");
         log.setDetail(reason);
-        log.setCreatedAt(new Date());
         adminActionLogMapper.insert(log);
 
-        // 发送通知给企业
         Company company = companyMapper.findById(position.getCompanyId());
         if (company != null) {
-            Notification notification = new Notification();
-            notification.setUserId(company.getUserId());
-            notification.setTitle(approved ? "职位审核通过" : "职位审核驳回");
-            notification.setContent(approved
-                    ? "您的职位「" + position.getTitle() + "」已通过审核"
-                    : "您的职位「" + position.getTitle() + "」未通过审核，原因：" + reason);
-            notification.setType("POSITION_AUDIT");
-            notification.setReadFlag(0);
-            notification.setCreatedAt(new Date());
-            notificationMapper.insert(notification);
+            notificationService.send(company.getUserId(), "AUDIT_RESULT",
+                    approved ? "职位审核通过" : "职位审核驳回",
+                    approved ? "您的职位「" + position.getTitle() + "」已通过审核"
+                             : "您的职位「" + position.getTitle() + "」未通过审核，原因：" + reason,
+                    id);
         }
     }
 
-    /**
-     * 获取企业职位列表
-     */
     @Override
     public List<PositionVO> getCompanyPositions(Integer companyId) {
         List<Position> positions = positionMapper.findByCompanyId(companyId);
-        return positions.stream()
-                .map(this::toVO)
-                .collect(Collectors.toList());
+        List<PositionVO> vos = new ArrayList<>();
+        for (Position p : positions) vos.add(toVO(p));
+        return vos;
     }
 
-    /**
-     * Position → PositionVO 转换，并填充企业名称
-     */
     private PositionVO toVO(Position position) {
         PositionVO vo = new PositionVO();
-        BeanUtils.copyProperties(position, vo);
-
-        // 填充企业名称
+        vo.setId(position.getId());
+        vo.setCompanyId(position.getCompanyId());
+        vo.setCategoryId(position.getCategoryId());
+        vo.setTitle(position.getTitle());
+        vo.setDescription(position.getDescription());
+        vo.setRequirement(position.getRequirement());
+        vo.setSalaryMin(position.getSalaryMin());
+        vo.setSalaryMax(position.getSalaryMax());
+        vo.setEducation(position.getEducation());
+        vo.setExperience(position.getExperience());
+        vo.setWorkplace(position.getWorkplace());
+        vo.setTags(position.getTags());
+        vo.setStatus(position.getStatus());
+        vo.setViewCount(position.getViewCount());
+        vo.setDeliveryCount(position.getDeliveryCount());
+        vo.setExpireAt(position.getExpireAt());
+        vo.setCreatedAt(position.getCreatedAt());
         Company company = companyMapper.findById(position.getCompanyId());
         if (company != null) {
             vo.setCompanyName(company.getName());
+            vo.setCompanyLogo(company.getLogoUrl());
         }
-
         return vo;
     }
 }
