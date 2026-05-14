@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jobplus.mapper.PositionMapper">
+
+    <resultMap id="positionMap" type="com.jobplus.entity.Position">
+        <id property="id" column="id"/>
+        <result property="companyId" column="company_id"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="requirement" column="requirement"/>
+        <result property="salaryMin" column="salary_min"/>
+        <result property="salaryMax" column="salary_max"/>
+        <result property="education" column="education"/>
+        <result property="experience" column="experience"/>
+        <result property="workplace" column="workplace"/>
+        <result property="tags" column="tags"/>
+        <result property="status" column="status"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="deliveryCount" column="delivery_count"/>
+        <result property="expireAt" column="expire_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findById" resultMap="positionMap">
+        SELECT * FROM position WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.jobplus.entity.Position" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO position (company_id, category_id, title, description, requirement,
+            salary_min, salary_max, education, experience, workplace, tags, status, expire_at)
+        VALUES (#{companyId}, #{categoryId}, #{title}, #{description}, #{requirement},
+            #{salaryMin}, #{salaryMax}, #{education}, #{experience}, #{workplace}, #{tags}, #{status}, #{expireAt})
+    </insert>
+
+    <update id="update" parameterType="com.jobplus.entity.Position">
+        UPDATE position SET title=#{title}, description=#{description}, requirement=#{requirement},
+            category_id=#{categoryId}, salary_min=#{salaryMin}, salary_max=#{salaryMax},
+            education=#{education}, experience=#{experience}, workplace=#{workplace},
+            tags=#{tags}, status=0
+        WHERE id=#{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE position SET status=#{status} WHERE id=#{id}
+    </update>
+
+    <update id="incrementViewCount">
+        UPDATE position SET view_count = view_count + 1 WHERE id=#{id}
+    </update>
+
+    <update id="incrementDeliveryCount">
+        UPDATE position SET delivery_count = delivery_count + 1 WHERE id=#{id}
+    </update>
+
+    <select id="search" resultMap="positionMap">
+        SELECT * FROM position
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (title LIKE CONCAT('%', #{keyword}, '%')
+                     OR description LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="city != null and city != ''">
+                AND workplace LIKE CONCAT('%', #{city}, '%')
+            </if>
+            <if test="salaryMin != null">
+                AND salary_max >= #{salaryMin}
+            </if>
+            <if test="education != null and education != ''">
+                AND (education = #{education} OR education = '不限')
+            </if>
+            <if test="categoryId != null">
+                AND category_id = #{categoryId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="companyId != null">
+                AND company_id = #{companyId}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM position
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (title LIKE CONCAT('%', #{keyword}, '%')
+                     OR description LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="city != null and city != ''">
+                AND workplace LIKE CONCAT('%', #{city}, '%')
+            </if>
+            <if test="salaryMin != null">
+                AND salary_max >= #{salaryMin}
+            </if>
+            <if test="education != null and education != ''">
+                AND (education = #{education} OR education = '不限')
+            </if>
+            <if test="categoryId != null">
+                AND category_id = #{categoryId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="companyId != null">
+                AND company_id = #{companyId}
+            </if>
+        </where>
+    </select>
+
+    <select id="findByCompanyId" resultMap="positionMap">
+        SELECT * FROM position WHERE company_id = #{companyId} ORDER BY created_at DESC
+    </select>
+</mapper>
