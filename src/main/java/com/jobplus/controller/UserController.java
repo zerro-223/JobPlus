@@ -2,6 +2,7 @@ package com.jobplus.controller;
 
 import com.jobplus.common.dto.*;
 import com.jobplus.entity.User;
+import com.jobplus.common.annotation.RequireRole;
 import com.jobplus.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
