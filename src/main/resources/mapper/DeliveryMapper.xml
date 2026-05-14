@@ -3,6 +3,10 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jobplus.mapper.DeliveryMapper">
 
+    <!-- 仅保留动态 SQL：findByCompanyId 需要 JOIN，无法用注解实现 -->
+    <!-- 其他方法（findById, insert, updateStatus, markRead, findByUserId, count）
+         均在 DeliveryMapper.java 接口中用 @Select/@Insert/@Update 注解实现 -->
+
     <resultMap id="deliveryMap" type="com.jobplus.entity.Delivery">
         <id property="id" column="id"/>
         <result property="userId" column="user_id"/>
@@ -15,31 +19,6 @@
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
-    <select id="findById" resultMap="deliveryMap">
-        SELECT * FROM delivery WHERE id = #{id}
-    </select>
-
-    <select id="findByUserAndPosition" resultMap="deliveryMap">
-        SELECT * FROM delivery WHERE user_id = #{userId} AND position_id = #{positionId}
-    </select>
-
-    <insert id="insert" parameterType="com.jobplus.entity.Delivery" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO delivery (user_id, position_id, resume_id, status, company_read)
-        VALUES (#{userId}, #{positionId}, #{resumeId}, #{status}, #{companyRead})
-    </insert>
-
-    <update id="updateStatus">
-        UPDATE delivery SET status = #{status} WHERE id = #{id}
-    </update>
-
-    <update id="markRead">
-        UPDATE delivery SET company_read = TRUE, read_at = NOW() WHERE id = #{id}
-    </update>
-
-    <select id="findByUserId" resultMap="deliveryMap">
-        SELECT * FROM delivery WHERE user_id = #{userId} ORDER BY created_at DESC
-    </select>
-
     <select id="findByCompanyId" resultMap="deliveryMap">
         SELECT d.* FROM delivery d
         JOIN `position` p ON d.position_id = p.id
@@ -47,7 +26,4 @@
         ORDER BY d.created_at DESC
     </select>
 
-    <select id="count" resultType="long">
-        SELECT COUNT(*) FROM delivery
-    </select>
 </mapper>
