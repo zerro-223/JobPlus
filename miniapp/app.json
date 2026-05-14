@@ -1,0 +1,28 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/jobs/jobs",
+    "pages/detail/detail",
+    "pages/login/login",
+    "pages/resume/resume",
+    "pages/deliveries/deliveries",
+    "pages/favorites/favorites",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#1a1a2e",
+    "navigationBarTitleText": "JobPlus",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#1890ff",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页", "iconPath": "images/home.png", "selectedIconPath": "images/home-active.png" },
+      { "pagePath": "pages/jobs/jobs", "text": "职位", "iconPath": "images/job.png", "selectedIconPath": "images/job-active.png" },
+      { "pagePath": "pages/deliveries/deliveries", "text": "投递", "iconPath": "images/delivery.png", "selectedIconPath": "images/delivery-active.png" },
+      { "pagePath": "pages/profile/profile", "text": "我的", "iconPath": "images/me.png", "selectedIconPath": "images/me-active.png" }
+    ]
+  }
+}

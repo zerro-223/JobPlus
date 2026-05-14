@@ -1,0 +1,8 @@
+.card { padding:30rpx;background:#fff }
+.title { font-size:36rpx;font-weight:bold;margin-bottom:16rpx }
+.salary { color:#1890ff;font-size:40rpx;margin-bottom:16rpx }
+.info { color:#666;font-size:26rpx;margin-bottom:16rpx }
+.tags { margin-bottom:16rpx }
+.tag { display:inline-block;background:#e6f7ff;color:#1890ff;padding:4rpx 12rpx;margin-right:8rpx;border-radius:4rpx;font-size:22rpx }
+.desc-title { font-size:30rpx;font-weight:bold;margin:24rpx 0 12rpx }
+.desc { line-height:1.8;color:#333;white-space:pre-wrap }

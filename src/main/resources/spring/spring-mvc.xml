@@ -14,7 +14,7 @@
     <!-- 扫描 Controller -->
     <context:component-scan base-package="com.jobplus.controller"/>
 
-    <!-- 启用 MVC 注解驱动 -->
+    <!-- 启用 MVC 注解驱动（含消息转换器和自定义参数解析器） -->
     <mvc:annotation-driven>
         <mvc:message-converters>
             <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
@@ -29,6 +29,9 @@
                 </property>
             </bean>
         </mvc:message-converters>
+        <mvc:argument-resolvers>
+            <bean class="com.jobplus.common.config.AuthUserResolver"/>
+        </mvc:argument-resolvers>
     </mvc:annotation-driven>
 
     <!-- 静态资源映射 -->

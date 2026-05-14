@@ -1,0 +1,12 @@
+<view>
+  <view class="filter-bar">
+    <input placeholder="搜索" value="{{keyword}}" bindinput="onKw" style="flex:1;padding:12rpx 20rpx;background:#fff;border-radius:8rpx;margin-right:10rpx" />
+    <input placeholder="城市" value="{{city}}" bindinput="onCity" style="width:160rpx;padding:12rpx 20rpx;background:#fff;border-radius:8rpx;margin-right:10rpx" />
+    <button size="mini" type="primary" bindtap="search">筛选</button>
+  </view>
+  <view class="job-card" wx:for="{{list}}" wx:key="id" bindtap="goDetail" data-id="{{item.id}}">
+    <view class="job-title">{{item.title}} <text class="salary">{{item.salaryMin}}-{{item.salaryMax}}K</text></view>
+    <view class="job-info">{{item.companyName}} | {{item.workplace}} | {{item.education}}</view>
+  </view>
+  <view wx:if="{{list.length===0}}" class="empty">暂无匹配职位</view>
+</view>

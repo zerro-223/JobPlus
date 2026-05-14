@@ -1,0 +1,6 @@
+<view class="container">
+  <view class="title">JobPlus 登录</view>
+  <input placeholder="邮箱" value="{{email}}" bindinput="onEmail" class="input" />
+  <input placeholder="密码" password value="{{password}}" bindinput="onPwd" class="input" />
+  <button type="primary" bindtap="login">登录</button>
+</view>
