@@ -3,6 +3,7 @@ package com.jobplus.mapper;
 import com.jobplus.common.dto.PositionQuery;
 import com.jobplus.entity.Position;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
