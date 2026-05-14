@@ -1,6 +1,0 @@
-.filter-bar { display:flex;padding:20rpx;background:#fff;margin-bottom:10rpx }
-.job-card { background:#fff;padding:24rpx;margin-bottom:16rpx }
-.job-title { font-size:30rpx;font-weight:bold;margin-bottom:8rpx }
-.salary { color:#1890ff;float:right }
-.job-info { color:#666;font-size:24rpx }
-.empty { text-align:center;color:#999;padding:80rpx }

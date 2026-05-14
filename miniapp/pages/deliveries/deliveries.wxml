@@ -1,6 +1,0 @@
-<view wx:if="{{list.length===0}}" class="empty">暂无投递记录</view>
-<view class="card" wx:for="{{list}}" wx:key="id" bindtap="goDetail" data-id="{{item.positionId}}">
-  <view class="job-title">{{item.positionTitle}}</view>
-  <view class="info">{{item.companyName}} | {{item.createdAt?.substring(0,10)}}</view>
-  <view class="status" style="color:{{['#999','#1890ff','#52c41a','#ff4d4f'][item.status]}}">{{['已投递','被查看','邀面试','不合适'][item.status]}}</view>
-</view>

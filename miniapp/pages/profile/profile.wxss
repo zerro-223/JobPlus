@@ -1,9 +1,0 @@
-.container { background:#f5f7fa;min-height:100vh }
-.login-box { padding:60rpx }
-.login-box .title { font-size:48rpx;text-align:center;margin-bottom:60rpx;font-weight:bold }
-.input { border-bottom:1px solid #eee;padding:24rpx 0;margin-bottom:30rpx;font-size:30rpx }
-.header { background:linear-gradient(135deg,#1a1a2e,#16213e);padding:60rpx 30rpx;color:#fff }
-.name { font-size:36rpx;font-weight:bold }
-.role { font-size:26rpx;color:#aaa;margin-top:10rpx }
-.menu-list { background:#fff;margin-top:20rpx }
-.menu-item { padding:30rpx;border-bottom:1px solid #f0f0f0;font-size:30rpx }

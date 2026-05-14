@@ -1,6 +1,0 @@
-<view wx:if="{{list.length===0}}" class="empty">暂无收藏</view>
-<view class="card" wx:for="{{list}}" wx:key="id" bindtap="goDetail" data-id="{{item.id}}">
-  <view class="job-title">{{item.title}}</view>
-  <view class="info">{{item.companyName}} | {{item.salaryMin}}-{{item.salaryMax}}K</view>
-  <button size="mini" bindtap="remove" data-id="{{item.id}}" style="margin-top:10rpx">取消收藏</button>
-</view>
