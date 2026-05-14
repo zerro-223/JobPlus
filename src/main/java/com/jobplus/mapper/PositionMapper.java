@@ -1,13 +1,11 @@
 package com.jobplus.mapper;
 
+import com.jobplus.common.dto.PositionQuery;
 import com.jobplus.entity.Position;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-/**
- * 职位 Mapper
- */
 public interface PositionMapper {
 
     Position findById(@Param("id") Integer id);
@@ -24,23 +22,15 @@ public interface PositionMapper {
 
     List<Position> findByCompanyId(@Param("companyId") Integer companyId);
 
-    List<Position> search(@Param("keyword") String keyword,
-                          @Param("categoryId") Integer categoryId,
-                          @Param("workplace") String workplace,
-                          @Param("education") String education,
-                          @Param("experience") String experience,
-                          @Param("status") Integer status,
-                          @Param("offset") int offset,
-                          @Param("limit") int limit);
+    /** Dynamic search via XML (sql/mapper/PositionMapper.xml) */
+    List<Position> search(PositionQuery query);
 
-    long searchCount(@Param("keyword") String keyword,
-                     @Param("categoryId") Integer categoryId,
-                     @Param("workplace") String workplace,
-                     @Param("education") String education,
-                     @Param("experience") String experience,
-                     @Param("status") Integer status);
+    /** Count matching records via XML */
+    long count(PositionQuery query);
 
-    long count();
+    @Select("SELECT COUNT(*) FROM `position`")
+    long countTotal();
 
+    @Select("SELECT COUNT(*) FROM `position` WHERE status = #{status}")
     long countByStatus(@Param("status") Integer status);
 }

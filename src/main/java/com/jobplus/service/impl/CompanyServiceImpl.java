@@ -1,11 +1,11 @@
 package com.jobplus.service.impl;
 
 import com.jobplus.common.dto.DeliveryVO;
-import com.jobplus.common.dto.Result;
 import com.jobplus.common.exception.BusinessException;
 import com.jobplus.entity.*;
 import com.jobplus.mapper.*;
 import com.jobplus.service.CompanyService;
+import com.jobplus.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,7 +76,10 @@ public class CompanyServiceImpl implements CompanyService {
         List<DeliveryVO> vos = new ArrayList<>();
         for (Delivery d : deliveries) {
             DeliveryVO vo = new DeliveryVO();
-            copyDelivery(d, vo);
+            vo.setId(d.getId()); vo.setUserId(d.getUserId());
+            vo.setPositionId(d.getPositionId()); vo.setResumeId(d.getResumeId());
+            vo.setStatus(d.getStatus()); vo.setCompanyRead(d.getCompanyRead());
+            vo.setReadAt(d.getReadAt()); vo.setCreatedAt(d.getCreatedAt());
             Position pos = positionMapper.findById(d.getPositionId());
             if (pos != null) vo.setPositionTitle(pos.getTitle());
             Resume resume = resumeMapper.findById(d.getResumeId());
@@ -84,12 +87,5 @@ public class CompanyServiceImpl implements CompanyService {
             vos.add(vo);
         }
         return vos;
-    }
-
-    private void copyDelivery(Delivery src, DeliveryVO dst) {
-        dst.setId(src.getId()); dst.setUserId(src.getUserId());
-        dst.setPositionId(src.getPositionId()); dst.setResumeId(src.getResumeId());
-        dst.setStatus(src.getStatus()); dst.setCompanyRead(src.getCompanyRead());
-        dst.setReadAt(src.getReadAt()); dst.setCreatedAt(src.getCreatedAt());
     }
 }

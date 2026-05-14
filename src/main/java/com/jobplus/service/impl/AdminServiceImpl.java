@@ -1,5 +1,6 @@
 package com.jobplus.service.impl;
 
+import com.jobplus.common.dto.PositionQuery;
 import com.jobplus.common.dto.PositionVO;
 import com.jobplus.common.dto.StatsVO;
 import com.jobplus.common.exception.BusinessException;
@@ -60,7 +61,11 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public List<PositionVO> getPendingPositions() {
-        List<Position> positions = positionMapper.search(buildPendingQuery());
+        PositionQuery q = new PositionQuery();
+        q.setStatus(0);
+        q.setPage(1);
+        q.setSize(100);
+        List<Position> positions = positionMapper.search(q);
         List<PositionVO> vos = new ArrayList<>();
         for (Position p : positions) {
             PositionVO vo = new PositionVO();
@@ -72,14 +77,6 @@ public class AdminServiceImpl implements AdminService {
             vos.add(vo);
         }
         return vos;
-    }
-
-    private com.jobplus.common.dto.PositionQuery buildPendingQuery() {
-        com.jobplus.common.dto.PositionQuery q = new com.jobplus.common.dto.PositionQuery();
-        q.setStatus(0);
-        q.setPage(1);
-        q.setSize(100);
-        return q;
     }
 
     @Override
@@ -101,7 +98,8 @@ public class AdminServiceImpl implements AdminService {
         if (company != null) {
             notificationService.send(company.getUserId(), "AUDIT_RESULT",
                     "职位审核结果",
-                    approved ? "职位「" + pos.getTitle() + "」已审核通过并上线" : "职位「" + pos.getTitle() + "」审核驳回: " + rejectReason,
+                    approved ? "职位「" + pos.getTitle() + "」已审核通过并上线"
+                             : "职位「" + pos.getTitle() + "」审核驳回: " + rejectReason,
                     positionId);
         }
     }
@@ -109,19 +107,18 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public StatsVO getStats() {
         StatsVO vo = new StatsVO();
-        // Use count approach - simple estimation
-        vo.setUserCount(100);
-        vo.setCompanyCount(50);
-        vo.setPositionCount(200);
-        vo.setDeliveryCount(500);
-        vo.setPendingCompanyCount(5);
-        vo.setPendingPositionCount(10);
+        vo.setUserCount(userMapper.count());
+        vo.setCompanyCount(companyMapper.count());
+        vo.setPositionCount(positionMapper.countTotal());
+        vo.setDeliveryCount(deliveryMapper.count());
+        vo.setPendingCompanyCount(companyMapper.countByStatus(0));
+        vo.setPendingPositionCount(positionMapper.countByStatus(0));
         return vo;
     }
 
     @Override
     public List<User> getUsers() {
-        return userMapper.findByRole(null);
+        return userMapper.findAll();
     }
 
     @Override
